@@ -28,15 +28,22 @@ def run_app():
     top_frame = tk.Frame(window, bg="#1e1e1e")
     top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
 
-    # Avatar yükle
-    # Avatar yükle (Pillow ile yeniden boyutlandır)
+    # Avatar:
+    # Avatar çerçeveli çizim için Canvas kullan
     avatar_path = os.path.join("assets", "avatar_normal.png")
     avatar_image = Image.open(avatar_path).resize((100, 150), Image.LANCZOS)
     avatar_img = ImageTk.PhotoImage(avatar_image)
     window.avatar_img = avatar_img  # referans tutulmalı
 
-    avatar_label = tk.Label(top_frame, image=avatar_img, bg="#1e1e1e")
-    avatar_label.pack(side=tk.LEFT, padx=(0, 10))
+    # Canvas oluştur
+    avatar_canvas = tk.Canvas(top_frame, width=110, height=160, bg="#1e1e1e", highlightthickness=0)
+    avatar_canvas.pack(side=tk.LEFT, padx=(0, 10))
+
+    # Çerçeve (örnek mavi çizgi)
+    avatar_canvas.create_rectangle(5, 5, 105, 155, outline="#6c9eff", width=2)
+
+    # Avatar resmi ekle
+    avatar_canvas.create_image(55, 80, image=avatar_img)
 
     # Başlık yazısı
     title_label = tk.Label(top_frame, text="🌟 VoxaAI", font=("Segoe UI", 18, "bold"), fg="#6c9eff", bg="#1e1e1e")
