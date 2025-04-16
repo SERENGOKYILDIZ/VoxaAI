@@ -1,11 +1,10 @@
 import json
 import os
 
-MEMORY_FILE = "./data/memory.json"
+MEMORY_FILE = "data/memory.json"
 
-if not os.path.exists(MEMORY_FILE):
-    with open(MEMORY_FILE, "w") as f:
-        json.dump({}, f)
+# Geçici öğrenme için tutulacak geçici değişken
+pending_question = None
 
 def load_memory():
     with open(MEMORY_FILE, "r") as f:
@@ -16,14 +15,20 @@ def save_memory(memory):
         json.dump(memory, f, indent=4)
 
 def process_message(message):
+    global pending_question
     memory = load_memory()
-    if message.startswith("/learn"):
-        try:
-            _, question, answer = message.split("::", 2)
-            memory[question.strip().lower()] = answer.strip()
-            save_memory(memory)
-            return "Öğrendim! ✅"
-        except ValueError:
-            return "Hatalı öğrenme formatı. Doğru kullanım: /learn::soru::cevap"
+
+    # Eğer bir önceki mesaj cevapsız kaldıysa, kullanıcıdan gelen yanıtı kaydeder
+    if pending_question:
+        memory[pending_question] = message.strip()
+        save_memory(memory)
+        response = f"Teşekkürler! Artık '{pending_question}' sorusunu biliyorum. ✅"
+        pending_question = None
+        return response
+
+    message_lower = message.strip().lower()
+    if message_lower in memory:
+        return memory[message_lower]
     else:
-        return memory.get(message.strip().lower(), "Bunu bilmiyorum. 🤖 /learn komutuyla öğretebilirsin.")
+        pending_question = message_lower
+        return "Bunu bilmiyorum. Ne demek istedin? 🤔"
